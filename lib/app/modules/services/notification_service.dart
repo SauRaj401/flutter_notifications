@@ -5,39 +5,66 @@ class NotificationService {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-  Future<void> _firebaseMessagingBackgroundHandler(
-      RemoteMessage message) async {
-    print("Handling background message: ${message.data}");
+  Future<void> initNotification() async {
+    AndroidInitializationSettings initializationSettingsAndroid =
+        const AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    // Customize and display a local notification
-    const AndroidNotificationDetails androidDetails =
+    var initializationSettingsIOS = DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+
+      // onDidReceiveLocalNotification:
+      //     (int id, String? title, String? body, String? payload) async {},
+    );
+
+    var initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid,
+      iOS: initializationSettingsIOS,
+    );
+
+    await flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse:
+          (NotificationResponse notificationResponse) async {},
+    );
+
+    // _firebaseMessagingBackgroundHandler();
+
+    _createNotificationChannels();
+  }
+
+  void _createNotificationChannels() {
+    const AndroidNotificationChannel channel = AndroidNotificationChannel(
+      'order_channel',
+      'Orders',
+      description: 'Channel for order notifications',
+      importance: Importance.max,
+      playSound: true,
+    );
+
+    flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
+  }
+
+  notificationDetails() {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
         AndroidNotificationDetails(
       'order_channel',
       'Orders',
+      icon: '@mipmap/ic_launcher',
       channelDescription: 'Channel for order notifications',
+      channelShowBadge: true,
       importance: Importance.max,
       priority: Priority.high,
     );
 
-    const NotificationDetails platformDetails =
-        NotificationDetails(android: androidDetails);
+    const NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
 
-    await flutterLocalNotificationsPlugin.show(
-      0, // Notification ID
-      message.data['title'], // Notification Title
-      message.data['body'], // Notification Body
-      platformDetails,
-    );
-  }
-
-  Future<void> initialize() async {
-    const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
-
-    const InitializationSettings initializationSettings =
-        InitializationSettings(android: initializationSettingsAndroid);
-
-    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+    return platformChannelSpecifics;
   }
 
   Future<void> showNotification({
@@ -64,4 +91,13 @@ class NotificationService {
       platformDetails,
     );
   }
+  // Future<void> initialize() async {
+  //   const AndroidInitializationSettings initializationSettingsAndroid =
+  //       AndroidInitializationSettings('@mipmap/ic_launcher');
+
+  //   const InitializationSettings initializationSettings =
+  //       InitializationSettings(android: initializationSettingsAndroid);
+
+  //   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  // }
 }

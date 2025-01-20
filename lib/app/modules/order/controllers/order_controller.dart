@@ -12,7 +12,7 @@ class OrderController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    notificationService.initialize();
+    notificationService.initNotification();
     socketService.connectToSocket();
 
     // Listen for new orders

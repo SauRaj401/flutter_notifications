@@ -15,13 +15,13 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  // await Firebase.initializeApp();
 
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  // FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   FirebaseService firebaseService = FirebaseService();
-  await firebaseService.disableBattaryOptimization();
-  await firebaseService.initializeFCM();
+  // await firebaseService.disableBattaryOptimization();
+  await firebaseService.initializeSetup();
 
   runApp(
     GetMaterialApp(
